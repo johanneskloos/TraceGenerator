@@ -111,11 +111,13 @@
 				"bind", "call", "constructor", "toString" ]);
 		materialize_object("Boolean", [ "length", "prototype" ], [
 				"constructor", "toString", "valueOf" ]);
+		/*
 		materialize_object("Symbol", [ "for", "hasInstance",
 				"isConcatSpreadable", "iterator", "keyFor", "match",
 				"prototype", "replace", "search", "species", "split",
 				"toPrimitive", "toStringTag", "unscopables" ], [ "constructor",
 				"toString", "valueOf" ]);
+				*/
 		materialize_object("Error", [ "prototype" ], [ "constructor",
 				"message", "name", "toString" ]);
 		materialize_object("Number", [ "EPSILON", "isFinite", "isInteger",
@@ -198,20 +200,40 @@
 		materialize_object("JSON", [ "parse", "stringify", "toStringTag" ], []);
 
 		// recurse along prototype chain
-		function get_all_properties(obj, props) {
-			var props_here = Object.getOwnPropertyNames(obj);
-			props.concat(props_here);
-			var proto = Object.getPrototypeOf(obj);
-			if (proto != null) {
-				get_all_properties(proto, props);
-			}
+		function filter_special(name) {
+		    return (name == "caller" || name == "callee" || name == "arguments");
 		}
+		function describe_level(obj, desc) {
+		    var props = Object.getOwnPropertyNames(obj);
+		    for (var i = 0; i < props.length; i++) {
+			var prop = props[i];
+			if (filter_special(prop)) continue;
+			var propdesc = Object.getOwnPropertyDescriptor(obj, prop);
+			if (propdesc == undefined)
+				propdesc = {};
+			if (propdesc["get"]) {
+				propdesc.get = objid(propdesc.get)
+			}
+			if (propdesc["set"]) {
+				propdesc.set = objid(propdesc.set)
+			}
+			propdesc.value = objid(obj[prop]);
+			desc[prop] = propdesc;
+		    }
+		    var proto = Object.getPrototypeOf(obj);
+		    if (proto !== null && proto !== Object.getPrototypeOf(obj))
+			return describe_level(obj, desc);
+		    else
+			return desc;
+		}
+		/*
 		function describeobj(obj) {
 			// We know that obj is of type object (or something very similar,
 			// like function)
 			var desc = {};
 			var all_properties = new Array();
-			get_all_properties(obj, all_properties);
+			all_properties = get_all_properties(obj, all_properties);
+			console.log("Considering properties: " + Array.prototype.join.call(all_properties, ","));
 			for (var i = 0; i < all_properties.length; i++) {
 				var prop = all_properties[i];
 				var propdesc = Object.getOwnPropertyDescriptor(obj, prop);
@@ -228,7 +250,10 @@
 			}
 			return desc;
 		}
-
+		*/
+		function describeobj(obj) {
+		    return describe_level(obj, {});
+		}
 		function funcid(obj) {
 			// We know that obj is of type function
 			if (functions.has(obj)) {
