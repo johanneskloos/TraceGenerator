@@ -211,13 +211,18 @@
 			var propdesc = Object.getOwnPropertyDescriptor(obj, prop);
 			if (propdesc == undefined)
 				propdesc = {};
+			var skip_value = false;
 			if (propdesc["get"]) {
 				propdesc.get = objid(propdesc.get)
+				skip_value = true;
 			}
 			if (propdesc["set"]) {
 				propdesc.set = objid(propdesc.set)
 			}
-			propdesc.value = objid(obj[prop]);
+			if (!skip_value)
+				propdesc.value = objid(obj[prop]);
+			else
+				propdesc.value = undefined;
 			desc[prop] = propdesc;
 		    }
 		    var proto = Object.getPrototypeOf(obj);
