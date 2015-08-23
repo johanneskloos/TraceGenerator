@@ -111,13 +111,6 @@
 				"bind", "call", "constructor", "toString" ]);
 		materialize_object("Boolean", [ "length", "prototype" ], [
 				"constructor", "toString", "valueOf" ]);
-		/*
-		materialize_object("Symbol", [ "for", "hasInstance",
-				"isConcatSpreadable", "iterator", "keyFor", "match",
-				"prototype", "replace", "search", "species", "split",
-				"toPrimitive", "toStringTag", "unscopables" ], [ "constructor",
-				"toString", "valueOf" ]);
-				*/
 		materialize_object("Error", [ "prototype" ], [ "constructor",
 				"message", "name", "toString" ]);
 		materialize_object("Number", [ "EPSILON", "isFinite", "isInteger",
@@ -164,39 +157,6 @@
 				"pop", "push", "reduce", "reduceRight", "reverse", "shift",
 				"slice", "some", "sort", "splice", "toLocaleString",
 				"toString", "unshift", "values", "iterator" ]);
-		/*
-		 * for (obj in ["Int8Array", "Uint8Array", "Uint8ClampedArray",
-		 * "Int16Array", "Uint16Array", "Int32Array", "Uint32Array",
-		 * "Float32Array", "Float64Array"]) { materialize_object(obj, ["from",
-		 * "of", "prototype", "species", "BYTES_PER_ELEMENT" ], ["buffer",
-		 * "byteLength", "byteOffset", "constructor", "copyWithin", "entries",
-		 * "every", "fill", "filter", "find", "findIndex", "forEach", "indexOf",
-		 * "join", "keys", "lastIndexOf", "length", "map", "reduce",
-		 * "reduceRight", "reverse", "set", "slice", "some", "sort", "subarray",
-		 * "toLocaleString", "toString", "values", "iterator", "toStringTag"]); }
-		 */
-		/*
-		materialize_object("Map", [ "prototype", "species", "length" ], [
-				"clear", "constructor", "delete", "entries", "forEach", "get",
-				"has", "keys", "set", "size", "values", "iterator",
-				"toStringTag" ]);
-		materialize_object("Set", [ "prototype", "species" ], [ "add", "clear",
-				"constructor", "delete", "entries", "forEach", "has", "keys",
-				"size", "values", "iterator", "toStringTag" ]);
-		materialize_object("WeakMap", [ "prototype", "length" ], [
-				"constructor", "delete", "get", "has", "set", "toStringTag" ]);
-		materialize_object("WeakSet", [ "prototype", "length" ], [ "add",
-				"constructor", "delete", "has", "toStringTag" ]);
-		materialize_object("ArrayBuffer", [ "length", "isView", "prototype",
-				"species" ], [ "byteLength", "constructor", "slice",
-				"toStringTag" ]);
-		materialize_object("DataView", [ "length", "prototype" ], [ "buffer",
-				"byteLength", "byteOffset", "constructor", "getFloat32",
-				"getFloat64", "getInt8", "getInt16", "getInt32", "getUint8",
-				"getUint16", "getUint32", "setFloat32", "setFloat64",
-				"setInt8", "setInt16", "setInt32", "setUint8", "setUint16",
-				"setUint32", "toStringTag" ]);
-				*/
 		materialize_object("JSON", [ "parse", "stringify", "toStringTag" ], []);
 
 		// recurse along prototype chain
