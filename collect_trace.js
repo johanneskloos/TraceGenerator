@@ -58,6 +58,7 @@
 				var desc = {
 					id : objid(obj)
 				};
+				/*
 				var obj_data = {};
 				materialize_properties(obj_data, obj, props_obj);
 				desc.obj_data = obj_data;
@@ -66,9 +67,11 @@
 					materialize_properties(proto_data, obj.prototype, props_proto);
 				}
 				desc.proto_data = proto_data;
+				*/
 				globals[name] = desc;
 			}
 		}
+		/*
 		function materialize_properties(desc, base, offsets) {
 			for (i = 0; i < offsets.length; i++) {
 				materialize_property(desc, base, offsets[i]);
@@ -89,8 +92,11 @@
 				desc[offset] = propdesc;
 			}
 		}
+		*/
+	        globals.global = { id: objid(global), obj_data: {} };
 		// CAVE: This has to come first. We use the fact that the
 		// global object has index 0 in the oracle.
+		/*
 		globals.global = {
 			id : objid(global),
 			obj_data: {}
@@ -158,6 +164,7 @@
 				"slice", "some", "sort", "splice", "toLocaleString",
 				"toString", "unshift", "values", "iterator" ]);
 		materialize_object("JSON", [ "parse", "stringify", "toStringTag" ], []);
+		*/
 
 		// recurse along prototype chain
 		function filter_special(name) {
