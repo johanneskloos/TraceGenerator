@@ -52,122 +52,46 @@
 		// handle globals, but we need to know which.
 		var globals_are_properties = global.J$ === J$;
 
-		function materialize_object(name, props_obj, props_proto) {
-			eval("var obj = " + name);
-			if (obj !== undefined) {
-				var desc = {
-					id : objid(obj)
-				};
-				var obj_data = {};
-				materialize_properties(obj_data, obj, props_obj);
-				desc.obj_data = obj_data;
-				var proto_data = {};
-				if (obj.prototype != undefined) {
-					materialize_properties(proto_data, obj.prototype, props_proto);
-				}
-				desc.proto_data = proto_data;
-				globals[name] = desc;
-			}
-		}
-		function materialize_properties(desc, base, offsets) {
-			for (i = 0; i < offsets.length; i++) {
-				materialize_property(desc, base, offsets[i]);
-			}
-		}
-		function materialize_property(desc, base, offset) {
-			if (base.hasOwnProperty(offset)) {
-				var propdesc = Object.getOwnPropertyDescriptor(base, offset);
-				if (propdesc == undefined)
-					propdesc = {};
-				if (propdesc["get"]) {
-					propdesc.get = objid(propdesc.get)
-				}
-				if (propdesc["set"]) {
-					propdesc.set = objid(propdesc.set)
-				}
-				propdesc.value = objid(base[offset]);
-				desc[offset] = propdesc;
-			}
-		}
-		// CAVE: This has to come first. We use the fact that the
+		// CAVE: The global object has to come first. We use the fact that the
 		// global object has index 0 in the oracle.
-		globals.global = {
-			id : objid(global),
-			obj_data: {}
-		};
-		materialize_properties(globals.global.obj_data, global,
+		// The second argument is used to control the fields that get added.
+		// In particular, we use it to exclude debris from the instrumentation.
+		globals.global = objid(global,
+				// XXX may want to add the standard DOM properties later
 				["Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN",
 				 "parseFloat", "parseInt", "decodeURI", "decodeURIComponent",
-				 "encodeURI", "encodeURIComponent"])
-		materialize_object("Object", [ "assign", "create", "defineProperties",
-				"defineProperty", "freeze", "getOwnPropertyDescriptor",
-				"getOwnPropertyNames", "getOwnPropertySymbols",
-				"getPrototypeOf", "is", "isExtensible", "isFrozen", "isSealed",
-				"keys", "preventExtensions", "prototype", "seal",
-				"setPrototypeOf" ], [ "constructor", "hasOwnProperty",
-				"isPrototypeOf", "propertyIsEnumerable", "toLocaleString",
-				"toString", "valueOf" ]);
-		materialize_object("Function", [ "length", "prototype" ], [ "apply",
-				"bind", "call", "constructor", "toString" ]);
-		materialize_object("Boolean", [ "length", "prototype" ], [
-				"constructor", "toString", "valueOf" ]);
-		materialize_object("Error", [ "prototype" ], [ "constructor",
-				"message", "name", "toString" ]);
-		materialize_object("Number", [ "EPSILON", "isFinite", "isInteger",
-				"isNaN", "isSafeInteger", "MAX_SAFE_INTEGER", "MAX_VALUE",
-				"MIN_SAFE_INTEGER", "MIN_VALUE", "NAN", "NEGATIVE_INFINITY",
-				"parseFloat", "parseInt", "POSITIVE_INFINITY", "prototype" ], [
-				"constructor", "toExponential", "toFixed", "toLocaleString",
-				"toPrecision", "toString", "valueOf" ])
-		materialize_object("Math", [ "E", "LN10", "LN2", "LOG10E", "LOG2E",
-				"PI", "SQRT1_2", "SQRT2", "abs", "acos", "acosh", "asin",
-				"asinh", "atan", "atanh", "atan2", "cbrt", "ceil", "clz32",
-				"cos", "cosh", "exp", "expm1", "floor", "fround", "hypot",
-				"imul", "log", "log1p", "log10", "log2", "max", "min", "pow",
-				"random", "round", "sign", "sin", "sinh", "sqrt", "tan",
-				"tanh", "trunc" ], [])
-		materialize_object("Date", [ "now", "parse", "prototype", "UTC" ], [
-				"constructor", "getDate", "getDay", "getFullYear", "getHours",
-				"getMilliseconds", "getMinutes", "getMonth", "getSeconds",
-				"getTime", "getTimezoneOffset", "getUTCDate", "getUTCDay",
-				"getUTCFullYear", "getUTCHours", "getUTCMilliseconds",
-				"getUTCMinutes", "getUTCMonth", "getUTCSeconds", "setDate",
-				"setFullYear", "setHours", "setMilliseconds", "setMinutes",
-				"setMonth", "setSeconds", "setTime", "setUTCDate",
-				"setUTCFullYEar", "setUTCHours", "setUTCMilliseconds",
-				"setUTCMinutes", "setUTCMonth", "setUTCMinutes",
-				"setUTCSeconds", "toDateString", "toISOString", "toJSON",
-				"toLocateDateString", "toLocaleString", "toLocaleTimeString",
-				"toString", "toTimeString", "toUTCString", "valueOf" ]);
-		materialize_object("String", [ "fromCharCode", "fromCodePoint",
-				"prototype", "raw" ], [ "charAt", "charCodeAt", "codePointAt",
-				"concat", "constructor", "endsWith", "includes", "indexOf",
-				"lastIndexOf", "localeCompare", "match", "normalize", "repeat",
-				"replace", "search", "slice", "split", "startWith",
-				"substring", "toLocaleLowerCase", "toLocaleUpperCase",
-				"toLowerCase", "toString", "toUpperCase", "trim", "valueOf" ]);
-		materialize_object("RegExp", [ "prototype", "getRegExp" ], [
-				"constructor", "exec", "flags", "global", "ignoreCase",
-				"multiline", "source", "replace", "split", "search", "sticky",
-				"test", "toString", "unicode" ]);
-		materialize_object("Array", [ "from", "isArray", "of", "prototype" ], [
-				"concat", "isConcatSpreadable", "constructor", "copyWithin",
-				"entries", "every", "fill", "filter", "find", "findIndex",
-				"forEach", "indexOf", "join", "keys", "lastIndexOf", "map",
-				"pop", "push", "reduce", "reduceRight", "reverse", "shift",
-				"slice", "some", "sort", "splice", "toLocaleString",
-				"toString", "unshift", "values", "iterator" ]);
-		materialize_object("JSON", [ "parse", "stringify", "toStringTag" ], []);
+				 "encodeURI", "encodeURIComponent",
+				 "Array", "ArrayBuffer", "Boolean", "DataView", "Date", "Error",
+				 "EvalError", "Float32Array", "Float64Array", "Function",
+				 "Int8Array", "Int16Array", "Int32Array", "Map", "Number", "Object",
+				 "Proxy", "Promise", "RangeError", "ReferenceError", "RegExp",
+				 "Set", "String", "Symbol", "SyntaxError", "TypeError",
+				 "Uint8Array", "Uint8ClampedArray", "Uint16Array", "Uint32Array",
+				 "URIError", "WeakSet", "WeakMap", "JSON", "Math", "Reflect"]);
+		globals.Object = objid(Object);
+		globals.Function = objid(Function);
+		globals.Boolean = objid(Boolean);
+		globals.Error = objid(Error);
+		globals.Number = objid(Number);
+		globals.Math = objid(Math);
+		globals.Date = objid(Date);
+		globals.String = objid(String);
+		globals.RegExp = objid(RegExp);
+		globals.Array = objid(Array);
+		globals.JSON = objid(JSON);
 
 		// recurse along prototype chain
-		function filter_special(name) {
-		    return (name == "caller" || name == "callee" || name == "arguments");
+		function filter_special(name, limit) {
+			if (limit) {
+				if (limit.indexOf(name) == -1) return true;
+			}
+		    return (name == "caller" || name == "callee" || name == "arguments" || name == "*J$IID*" || name == "*J$SID*");
 		}
-		function describe_level(obj, desc) {
+		function describe_level(obj, desc, limit) {
 		    var props = Object.getOwnPropertyNames(obj);
 		    for (var i = 0; i < props.length; i++) {
 			var prop = props[i];
-			if (filter_special(prop)) continue;
+			if (filter_special(prop, limit)) continue;
 			var propdesc = Object.getOwnPropertyDescriptor(obj, prop);
 			if (propdesc == undefined)
 				propdesc = {};
@@ -191,33 +115,9 @@
 		    else
 			return desc;
 		}
-		/*
-		function describeobj(obj) {
-			// We know that obj is of type object (or something very similar,
-			// like function)
-			var desc = {};
-			var all_properties = new Array();
-			all_properties = get_all_properties(obj, all_properties);
-			console.log("Considering properties: " + Array.prototype.join.call(all_properties, ","));
-			for (var i = 0; i < all_properties.length; i++) {
-				var prop = all_properties[i];
-				var propdesc = Object.getOwnPropertyDescriptor(obj, prop);
-				if (propdesc == undefined)
-					propdesc = {};
-				if (propdesc["get"]) {
-					propdesc.get = objid(propdesc.get)
-				}
-				if (propdesc["set"]) {
-					propdesc.set = objid(propdesc.set)
-				}
-				propdesc.value = objid(obj[prop]);
-				desc[prop] = propdesc;
-			}
-			return desc;
-		}
-		*/
-		function describeobj(obj) {
-		    return describe_level(obj, {});
+
+		function describeobj(obj, limit) {
+		    return describe_level(obj, {}, limit);
 		}
 		function funcid(obj) {
 			// We know that obj is of type function
@@ -234,7 +134,7 @@
 			}
 		}
 
-		function objid(obj) {
+		function objid(obj, limit) {
 			switch (typeof obj) {
 			case "undefined":
 				return {
@@ -258,7 +158,8 @@
 				} else {
 					var id = objdesc.length;
 					objects.set(obj, id);
-					objdesc.push(describeobj(obj));
+					objdesc.push({});
+					objdesc[id] = describeobj(obj, limit);
 					return {
 						type : "function",
 						id : id,
@@ -278,7 +179,8 @@
 				} else {
 					var id = objdesc.length;
 					objects.set(obj, id);
-					objdesc.push(describeobj(obj));
+					objdesc.push({});
+					objdesc[id] = describeobj(obj, limit);
 					return {
 						type : "object",
 						id : id
