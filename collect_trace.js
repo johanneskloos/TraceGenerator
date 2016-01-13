@@ -244,21 +244,23 @@
 			});
 			if (typeof val == "function") {
 				var data = J$.smap[J$.sid];
-				var pos = data[iid].map(function(x) {
-					return x - 1
-				});
-				var lines = data.code.split("\n");
-				var text;
-				if (pos[0] == pos[2]) {
-					text = lines[pos[0]].substr(pos[1], pos[3] - pos[1]);
-				} else {
-					text = lines[pos[0]].substr(pos[1]);
-					for (var i = pos[0] + 1; i < pos[2]; i++) {
-						text += "\n" + lines[i];
-					}
-					text += "\n" + lines[pos[2]].substr(0, pos[3]);
+				if (data[iid]) {
+				    var pos = data[iid].map(function(x) {
+					    return x - 1
+				    });
+				    var lines = data.code.split("\n");
+				    var text;
+				    if (pos[0] == pos[2]) {
+					    text = lines[pos[0]].substr(pos[1], pos[3] - pos[1]);
+				    } else {
+					    text = lines[pos[0]].substr(pos[1]);
+					    for (var i = pos[0] + 1; i < pos[2]; i++) {
+						    text += "\n" + lines[i];
+					    }
+					    text += "\n" + lines[pos[2]].substr(0, pos[3]);
+				    }
+				    funcdesc[id.funid].uninstrumented = text;
 				}
-				funcdesc[id.funid].uninstrumented = text;
 			}
 		};
 
