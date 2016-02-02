@@ -1,0 +1,19 @@
+#! /bin/bash
+
+show_output=no
+case "$1" in -v) show_output=yes; shift;; esac
+
+tmp=$(mktemp /tmp/traceXXXXXX)
+trap "rm $tmp" EXIT
+
+ # -harmony-collections \
+node \
+	/home/jkloos/Work/CompilerTesting/jalangi2/src/js/commands/jalangi.js \
+	--inlineIID --inlineSource \
+	--analysis \
+	/home/jkloos/Work/CompilerTesting.new/TraceGenerator/collect_trace.js \
+	$1 >$tmp
+rm -f *_jalangi_*
+
+tail -1 $tmp >${1%.js}.trace
+if [ $show_output = yes ]; then less $tmp; fi
