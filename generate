@@ -8,10 +8,10 @@ trap "rm $tmp" EXIT
 
  # -harmony-collections \
 node \
-	/home/jkloos/Work/CompilerTesting/jalangi2/src/js/commands/jalangi.js \
+        $(npm explore jalangi2 -- pwd)/src/js/commands/jalangi.js \
 	--inlineIID --inlineSource \
 	--analysis \
-	/home/jkloos/Work/CompilerTesting.new/TraceGenerator/collect_trace.js \
+	/home/jkloos/Work/JSTruthiness/TraceGenerator/collect_trace.js \
 	$1 >$tmp
 rm -f *_jalangi_*
 
