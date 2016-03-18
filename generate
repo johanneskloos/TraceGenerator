@@ -15,5 +15,5 @@ node \
 	$1 >$tmp
 rm -f *_jalangi_*
 
-tail -1 $tmp |gzip -c >${1%.js}.trace
+tail -1 $tmp |gzip -c >${1%.js}.trace.gz
 if [ $show_output = yes ]; then less $tmp; fi
